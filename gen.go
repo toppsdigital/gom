@@ -109,10 +109,25 @@ func genGomfile() error {
 	if err != nil {
 		return err
 	}
+
 	all, err := scanDirectory(".", dir)
+	// if there are no root level packages, see if this is a meta-package w/ sub-packages
 	if err != nil {
-		return err
+		filepath.Walk(".", func(subpath string, f os.FileInfo, err error) error {
+			subdir := filepath.Join(dir, subpath)
+			if f.IsDir() && !strings.HasPrefix(subpath, "_vendor") && !strings.HasPrefix(subpath, ".") {
+				// Does the recursive walk
+				pkgs, err := scanDirectory(".", subdir)
+				if err == nil {
+					all = appendPkgs(all, pkgs)
+				} else {
+					return errors.New("Could not scan directory " + subdir)
+				}
+			}
+			return nil
+		})
 	}
+
 	sort.Strings(all)
 	goms := make([]Gom, 0)
 	for _, pkg := range all {
