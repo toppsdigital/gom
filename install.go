@@ -535,6 +535,8 @@ func install(args []string) error {
 	}
 
 	// 3. Checkout the commit/branch/tag if needed
+	options := map[string]interface{}{"commit": "313a8d7fab7884cd2e80ca9d9d0a5ecb26ac66a6",}
+	goms = append(goms, Gom{"github.com/go-redis/redis", options})
 	for _, gom := range goms {
 		err = gom.Checkout()
 		if err != nil {
