@@ -182,6 +182,7 @@ func (gom *Gom) Clone(args []string) error {
 			return nil
 		}
 	}
+
 	cmdArgs := []string{"go", "get", "-d"}
 	if insecure, ok := gom.options["insecure"].(string); ok {
 		if insecure == "true" {
@@ -196,7 +197,6 @@ func (gom *Gom) Clone(args []string) error {
 	}
 	cmdArgs = append(cmdArgs, args...)
 	cmdArgs = append(cmdArgs, gom.name+recursive)
-
 	fmt.Printf("downloading %s\n", gom.name)
 	return run(cmdArgs, Blue)
 }
@@ -232,6 +232,7 @@ func (gom *Gom) clonePrivate(srcdir string) (err error) {
 	if err != nil {
 		return
 	}
+	gom.Checkout()
 
 	return
 }
@@ -254,11 +255,13 @@ func (gom *Gom) Checkout() error {
 	if err != nil {
 		return err
 	}
+
 	p := filepath.Join(vendor, "src")
 	target, ok := gom.options["target"].(string)
 	if !ok {
 		target = gom.name
 	}
+
 	for _, elem := range strings.Split(target, "/") {
 		var vcs *vcsCmd
 		p = filepath.Join(p, elem)
